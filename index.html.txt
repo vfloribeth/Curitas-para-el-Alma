@@ -1,0 +1,344 @@
+# Buscador Interactivo de Versículos Bíblicos por Tema
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Versículos Bíblicos por Tema</title>
+    <!-- Tailwind CSS para un diseño moderno y totalmente responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .serif-title {
+            font-family: 'Playfair Display', serif;
+        }
+        /* Ocultar barra de scroll nativa en contenedores móviles manteniendo funcionalidad */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+    <!-- Encabezado de la Aplicación -->
+    <header class="bg-gradient-to-r from-amber-700 to-amber-900 text-white shadow-md py-6 px-4 text-center sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div>
+                <h1 class="serif-title text-2xl md:text-3xl font-bold tracking-wide">Luz y Palabra</h1>
+                <p class="text-amber-100 text-xs font-light hidden sm:block">Inspiración y sabiduría en la palma de tu mano</p>
+            </div>
+            <!-- Botón de Alternancia Móvil para ver la lista de temas en pantallas pequeñas -->
+            <button 
+                id="mobile-menu-toggle" 
+
+                class="lg:hidden w-full sm:w-auto mt-2 sm:mt-0 bg-amber-800 hover:bg-amber-600 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all flex items-center justify-center gap-2 border border-amber-600"
+            >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                <span>Cambiar / Buscar Tema</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Contenedor Principal Adaptativo -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-3 py-4 md:py-8 grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
+        
+        <!-- Panel Izquierdo: Buscador y Lista de Temas -->
+        <section 
+            id="sidebar-panel" 
+            class="hidden lg:flex lg:col-span-1 bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-6 flex-col fixed inset-0 z-40 lg:relative lg:inset-auto bg-opacity-95 lg:bg-opacity-100 backdrop-blur-md lg:backdrop-blur-none max-h-screen lg:max-h-[80vh]"
+        >
+            <!-- Cabecera de control móvil dentro del menú desplegable -->
+            <div class="flex items-center justify-between lg:hidden mb-4 pb-2 border-b border-slate-100">
+                <span class="font-bold text-slate-800">Selecciona una Categoría</span>
+
+                <button id="close-sidebar-btn" class="p-2 text-slate-500 hover:text-slate-800">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <h2 class="text-base md:text-lg font-semibold text-slate-900 mb-3 hidden lg:flex items-center gap-2">
+                <svg class="w-5 h-5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                Explorar Temas
+            </h2>
+            
+            <!-- Barra de Búsqueda Confortable para Dedos -->
+            <div class="relative mb-4">
+                <input 
+                    type="text" 
+                    id="search-input" 
+                    placeholder="Buscar tema (ej. Amor, Fe, Paz)..." 
+                    class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-600 focus:bg-white transition-all min-h-[44px]"
+                >
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+
+                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+            </div>
+
+            <!-- Lista de Temas con scroll optimizado -->
+            <div id="themes-list" class="flex-grow overflow-y-auto space-y-2 pr-1 no-scrollbar lg:scrollbar-thin">
+                <!-- Los botones de temas se inyectan aquí con JavaScript -->
+            </div>
+            
+            <!-- Contador de Temas -->
+            <div id="themes-count" class="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-400 text-center">
+                Cargando categorías...
+            </div>
+        </section>
+
+        <!-- Panel Derecho: Visualizador de Versículos -->
+        <section class="lg:col-span-2 flex flex-col justify-start">
+            <!-- Cabecera del Tema Seleccionado -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-6 mb-4 md:mb-6">
+
+                <div class="flex items-center justify-between gap-2">
+                    <div>
+                        <span class="text-[10px] md:text-xs font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">Tema Activo</span>
+                        <h3 id="current-theme-title" class="serif-title text-xl md:text-3xl font-bold text-slate-900 mt-1">Amor</h3>
+                    </div>
+                    <div id="versicles-count" class="text-xs md:text-sm bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-medium whitespace-nowrap">
+                        0 versículos
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toast de notificación para copiado -->
+            <div id="toast" class="hidden fixed bottom-5 right-5 bg-slate-900 text-white text-xs px-4 py-3 rounded-xl shadow-lg z-50 transition-all duration-300">
+                Versículo copiado al portapapeles.
+            </div>
+
+            <!-- Contenedor de Tarjetas de Versículos -->
+            <div id="versicles-container" class="space-y-3 md:space-y-4">
+                <!-- Las tarjetas de versículos se inyectan aquí con JavaScript -->
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Pie de Página -->
+    <footer class="bg-slate-900 text-slate-500 text-center py-6 border-t border-slate-800 text-[10px] md:text-xs mt-auto px-4">
+        <p>© 2026 Luz y Palabra - Optimizada para dispositivos móviles.</p>
+    </footer>
+
+    <!-- Lógica de Control Dinámica -->
+    <script>
+        // Datos Estructurados
+        const bibleData = {
+            "Amor": [
+                { texto: "El amor es paciente, es bondadoso. El amor no es envidioso ni jactancioso ni orgulloso. No se comporta con rudeza, no es egoísta, no se enoja fácilmente, no guarda rencor.", cita: "1 Corintios 13:4-5" },
+                { texto: "Y nosotros hemos llegado a saber y creer que Dios nos ama. Dios es amor. El que permanece en amor, permanece en Dios, y Dios en él.", cita: "1 Juan 4:16" },
+                { texto: "Hagan todo con amor.", cita: "1 Corintios 16:14" }
+            ],
+
+            "Fe": [
+                { texto: "Ahora bien, la fe es la garantía de lo que se espera, la certeza de lo que no se ve.", cita: "Hebreos 11:1" },
+                { texto: "Vivimos por fe, no por vista.", cita: "2 Corintios 5:7" },
+                { texto: "Porque por gracia ustedes han sido salvados mediante la fe; esto no procede de ustedes, sino que es el regalo de Dios.", cita: "Efesios 2:8" }
+            ],
+            "Paz": [
+                { texto: "Dejo con ustedes la paz; les doy mi paz. Ya no se lo doy a ustedes como el mundo la da. No se angustien ni tengan miedo.", cita: "Juan 14:27" },
+                { texto: "Y la paz de Dios, que sobrepasa todo entendimiento, cuidará sus corazones y sus pensamientos en Cristo Jesús.", cita: "Filipenses 4:7" }
+            ],
+            "Sabiduría": [
+                { texto: "Si a alguno de ustedes le falta sabiduría, pídasela a Dios, y él se la dará, pues Dios da a todos generosamente sin menospreciar a nadie.", cita: "Santiago 1:5" },
+                { texto: "El temor del Señor es el principio de la sabiduría; los necios desprecian la sabiduría y la disciplina.", cita: "Proverbios 1:7" }
+            ],
+            "Confianza": [
+                { texto: "Confía en el Señor con todo tu corazón, y no te apoyes en tu propia prudencia. Reconócelo en todos tus caminos, y él enderezará tus sendas.", cita: "Proverbios 3:5-6" },
+                { texto: "El Señor es mi fuerza y mi escudo; en él confía mi corazón, y soy socorrido.", cita: "Salmo 28:7" }
+            ],
+            "Alegría": [
+                { texto: "Gran remedio es el corazón alegre, pero el ánimo decaído seca los huesos.", cita: "Proverbios 17:22" },
+
+                { texto: "Alégrense siempre en el Señor. Insisto: ¡Alégrense!", cita: "Filipenses 4:4" }
+            ],
+            "Fortaleza": [
+                { texto: "Todo lo puedo en Cristo que me fortalece.", cita: "Filipenses 4:13" },
+                { texto: "El Señor es mi luz y mi salvación; ¿a quién temeré? El Señor es el baluarte de mi vida; ¿de quién tendré temor?", cita: "Salmo 27:1" }
+            ],
+            "Oración": [
+                { texto: "Oren sin cesar. Den gracias a Dios en toda situación, porque esta es su voluntad para ustedes en Cristo Jesús.", cita: "1 Tesalonicenses 5:17-18" },
+                { texto: "Clama a mí y te responderé, y te daré a conocer cosas grandes y ocultas que tú no sabes.", cita: "Jeremías 33:3" }
+            ],
+            "Esperanza": [
+                { texto: "Porque yo sé muy bien los planes que tengo para ustedes —afirma el Señor—, planes de bienestar y no de calamidad, a fin de darles un futuro y una esperanza.", cita: "Jeremías 29:11" },
+                { texto: "Que el Dios de la esperanza los llene de toda alegría y paz a ustedes que creen en él.", cita: "Romanos 15:13" }
+            ],
+            "Perdón": [
+                { texto: "Por tanto, como escogidos de Dios, santos y amados, revístanse de afecto entrañable y de bondad... Perdónense unos a otros si alguno tiene queja contra otro. Así como el Señor los perdonó, perdonen también ustedes.", cita: "Colosenses 3:12-13" }
+            ]
+        };
+
+
+        let activeTheme = "Amor";
+
+        // Elementos del DOM
+        const sidebarPanel = document.getElementById("sidebar-panel");
+        const mobileMenuToggle = document.getElementById("mobile-menu-toggle");
+        const closeSidebarBtn = document.getElementById("close-sidebar-btn");
+        const themesListContainer = document.getElementById("themes-list");
+        const searchInput = document.getElementById("search-input");
+        const currentThemeTitle = document.getElementById("current-theme-title");
+        const versiclesCount = document.getElementById("versicles-count");
+        const versiclesContainer = document.getElementById("versicles-container");
+        const themesCountLabel = document.getElementById("themes-count");
+        const toast = document.getElementById("toast");
+
+        function init() {
+            renderThemes();
+            renderVersicles();
+            
+            searchInput.addEventListener("input", () => {
+
+                renderThemes(searchInput.value);
+            });
+
+            // Controladores de Eventos Táctiles para Móvil
+            mobileMenuToggle.addEventListener("click", () => {
+                sidebarPanel.classList.remove("hidden");
+                sidebarPanel.classList.add("flex");
+            });
+
+            closeSidebarBtn.addEventListener("click", () => {
+                closeSidebar();
+            });
+        }
+
+        function closeSidebar() {
+            sidebarPanel.classList.add("hidden");
+            sidebarPanel.classList.remove("flex");
+        }
+
+
+        function showToast() {
+            toast.classList.remove("hidden");
+            setTimeout(() => {
+                toast.classList.add("hidden");
+            }, 2500);
+        }
+
+        // Función global para copiar texto compatible con iFrames
+        window.copyToClipboard = function(text) {
+            const tempInput = document.createElement("textarea");
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            showToast();
+        };
+
+        function renderThemes(filterText = "") {
+
+            themesListContainer.innerHTML = "";
+            const keys = Object.keys(bibleData).sort();
+            let visibleCount = 0;
+
+            keys.forEach(theme => {
+                if (theme.toLowerCase().includes(filterText.toLowerCase())) {
+                    visibleCount++;
+                    const button = document.createElement("button");
+                    button.textContent = theme;
+                    
+                    button.className = `w-full text-left px-4 py-3 text-sm rounded-xl transition-all flex items-center justify-between min-h-[44px] ${
+                        theme === activeTheme 
+                        ? "bg-amber-700 text-white font-medium shadow-sm" 
+                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                    }`;
+                    
+                    const badge = document.createElement("span");
+                    badge.textContent = bibleData[theme].length;
+                    badge.className = `text-xs px-2 py-0.5 rounded-full ${
+
+                        theme === activeTheme ? "bg-amber-600 text-white" : "bg-slate-200 text-slate-500"
+                    }`;
+                    
+                    button.appendChild(badge);
+                    
+                    button.addEventListener("click", () => {
+                        activeTheme = theme;
+                        currentThemeTitle.textContent = theme;
+                        renderThemes(searchInput.value);
+                        renderVersicles();
+                        closeSidebar();
+                    });
+                    
+                    themesListContainer.appendChild(button);
+                }
+            });
+
+            themesCountLabel.textContent = `${visibleCount} categorías de ${keys.length}`;
+        }
+
+
+        function renderVersicles() {
+            versiclesContainer.innerHTML = "";
+            const list = bibleData[activeTheme] || [];
+            
+            versiclesCount.textContent = `${list.length} ${list.length === 1 ? 'versículo' : 'versículos'}`;
+
+            list.forEach(v => {
+                const card = document.createElement("div");
+                card.className = "bg-white p-5 md:p-8 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden transition-all flex flex-col justify-between";
+                
+                const fullTextToShare = `"${v.texto}" — ${v.cita}`;
+                const whatsappUrl = `https://whatsapp.com{encodeURIComponent(fullTextToShare)}`;
+
+                card.innerHTML = `
+                    <div class="relative">
+                        <div class="absolute -top-4 -left-2 text-slate-100 text-7xl font-serif select-none pointer-events-none">“</div>
+                        <p class="text-slate-700 text-sm md:text-lg leading-relaxed mb-3 relative z-10 italic">
+                            "${v.texto}"
+                        </p>
+
+                        <div class="flex items-center justify-end gap-2 text-xs md:text-sm font-semibold text-amber-800 mb-4">
+                            <span class="w-3 h-[1px] bg-amber-600 inline-block"></span>
+                            <span>\${v.cita}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Barra de Herramientas Táctil: Compartir y Copiar -->
+                    <div class="flex items-center justify-end gap-2 border-t border-slate-100 pt-3 mt-2 relative z-20">
+                        <!-- Botón de Copiar -->
+                        <button 
+                            onclick="window.copyToClipboard('${v.texto.replace(/'/g, "\\'")} — ${v.cita}')"
+                            class="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800 bg-slate-50 hover:bg-slate-100 px-3 py-2 rounded-lg transition-colors border border-slate-200 min-h-[38px]"
+                            title="Copiar versículo"
+                        >
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                            <span>Copiar</span>
+                        </button>
+
+                        <!-- Botón de WhatsApp -->
+
+                        <a 
+                            href="${whatsappUrl}" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            class="inline-flex items-center gap-1 text-xs text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-2 rounded-lg transition-colors shadow-sm font-medium min-h-[38px]"
+                        >
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397 0 11.966 0c3.178.001 6.165 1.24 8.413 3.494 2.25 2.253 3.487 5.244 3.487 8.419 0 6.567-5.339 11.913-11.91 11.913h-.004c-1.997 0-3.953-.54-5.694-1.565L0 24zm6.59-4.846c1.66 1.01 3.298 1.543 4.935 1.547h.003c5.479 0 9.93-4.444 9.934-9.919.002-2.651-1.02-5.143-2.88-7.006C16.822 1.912 14.333.87 11.69.87c-5.481 0-9.935 4.444-9.939 9.92-.001 1.76.47 3.48 1.365 5.011l-1.008 3.684 3.77-.99c1.552.88 3.105 1.36 4.717 1.36zm10.374-7.601c-.287-.144-1.696-.838-1.957-.934-.26-.096-.45-.144-.64.144-.19.287-.736.934-.903 1.122-.167.188-.334.212-.621.068-.287-.144-1.21-.446-2.305-1.424-.853-.759-1.428-1.7-1.595-1.987-.167-.287-.018-.441.126-.583.13-.127.287-.334.43-.502.142-.167.19-.286.285-.478.096-.192.048-.36-.024-.503-.072-.143-.64-1.541-.877-2.113-.231-.554-.467-.48-.64-.488-.166-.008-.356-.01-.546-.01-.19 0-.501.071-.762.357-.26.287-1 .977-1 2.38s1.02 2.76 1.164 2.952c.143.192 2.007 3.066 4.862 4.297.68.293 1.21.468 1.62.6a3.877 3.877 0 0 0 1.77.112c.542-.08 1.696-.693 1.934-1.365.238-.672.238-1.248.167-1.365-.071-.116-.26-.188-.546-.332z"/></svg>
+                            <span>WhatsApp</span>
+                        </a>
+                    </div>
+                `;
+                versiclesContainer.appendChild(card);
+            });
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
+
+
